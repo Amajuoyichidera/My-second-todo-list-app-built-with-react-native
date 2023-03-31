@@ -1,6 +1,10 @@
 import { useState } from 'react';
 import { StyleSheet, Text, View, Button, TextInput,
-   ScrollView, FlatList, TouchableOpacity } from 'react-native';
+   ScrollView, FlatList, TouchableWithoutFeedback, Keyboard, Alert } from 'react-native';
+import Header from './components/header';
+import TodoItem from './components/todoItem';
+import AddTodo from './components/addTodo';
+
 
 export default function App() {
 
@@ -46,6 +50,8 @@ export default function App() {
     { text: 'Buy coffee', key: '1' },
     { text: 'create an app', key: '2' },
     { text: 'play ball', key: '3' },
+    { text: 'learn and upskill', key: '4' },
+    { text: 'build projects', key: '5' },
   ]);
 
 
@@ -73,6 +79,29 @@ export default function App() {
   //  });
   // }
 
+
+  const pressed = (key) => {
+    setTodos((prevTodos) => {
+      return prevTodos.filter(todo => todo.key != key);
+    });
+  }
+
+  const submitHandler = (text) => {
+
+    if(text.length > 3){
+      setTodos((prevTodos) =>{
+        return [
+          { text: text, key: Math.random().toString() },
+          ...prevTodos
+        ]
+      });
+    } else {
+      Alert.alert('OOPS!', 'Todos must be over 3 characters long', [
+        {text: 'Understood', onPress: () => console.log('Alert Closed')}
+      ]);
+    }
+    
+  }
 
   return (
    
@@ -130,20 +159,24 @@ export default function App() {
   //   )}
   // />
 
-   <View style={styles.container}>
-      {/* header */}
+   <TouchableWithoutFeedback onPress={() => {
+     Keyboard.dismiss();
+   }}>
+    <View style={styles.container}>
+      <Header />
       <View style={styles.content}>
-        {/* todo form  */}
+        <AddTodo submitHandler={submitHandler} />
         <View style={styles.list}>
            <FlatList
               data={todos}
               renderItem={({ item }) => (
-                 <Text> { item.text } </Text>
+                 <TodoItem item={item} pressed={pressed} />
               )}
             />
         </View>
       </View>
    </View>
+   </TouchableWithoutFeedback>
        
   );
 }
@@ -152,9 +185,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginTop: 70,
+    marginTop: 50,
   },
   // mybtn : {
   //   marginTop : 20,
@@ -179,8 +210,10 @@ const styles = StyleSheet.create({
   // },
   content : {
     padding: 40,
+    flex: 1,
   },
   list : {
+    flex: 1,
     marginTop: 20,
   }
 });
